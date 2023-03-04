@@ -9,12 +9,12 @@ class SurveyGUI(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.master.title("Sprinkler Recommendation System")
+        self.master.title("Recommended Sprinkler Usage")
         self.master.geometry("1500x1500")  # set window size
         self.pack(fill=tk.BOTH, expand=True)  # fill the screen
 
         # Add a title
-        title_label = tk.Label(self, text="Sprinkler Recommendation System", font=("Arial", 15))
+        title_label = tk.Label(self, text="Sprinkler Recommendation System", font=("Arial", 30))
         title_label.pack(pady=10)
 
         # Load the sustainability image
@@ -188,7 +188,19 @@ class SurveyGUI(tk.Frame):
         # Update the output label
         self.output_label4.config(text = output_text4)
 
-        output_text2 = daily_precipitation
+        output_text2 = "Over the next week, the predicted rainfall for {} is:\n\n".format(city_name)
+
+        daily_precipitation = {}
+
+        for index, row in df.iterrows():
+            day_of_week = index.strftime('%A')
+            if day_of_week not in daily_precipitation:
+                daily_precipitation[day_of_week] = row['precipitation']
+            else:
+                daily_precipitation[day_of_week] += row['precipitation']
+
+        for day, precipitation in daily_precipitation.items():
+            output_text2 += f"{day}: {precipitation:.3f} inches\n"
 
         # Shows Data
         self.output_label2.config(text=output_text2)
@@ -209,7 +221,7 @@ class SurveyGUI(tk.Frame):
 
         if len(no_precipitation_days > 0):
             output_text = f"The days when you have to water your garden are: {', '.join(no_watering_days)}," \
-                          f" so your garden needs {water_per_day} inches of water " \
+                          f" so your garden needs {round(water_per_day, 3)} inches of water " \
                           f"each day!"
         else:
             output_text = "Thank you for using our service!"
@@ -221,7 +233,7 @@ class SurveyGUI(tk.Frame):
         self.output_label.config(text=output_text)
 
         self.output_label6.config(text = f'We recommend watering for {roundedtime} minutes per day to meet the '
-                                         f'optimal watering rate of {num} inches per week based off of ur sprinkler type.'
+                                         f'optimal watering rate of {num} inches per week based off of your sprinkler type.'
                                          f'\n\nWe recommend watering in the early morning prior to 10 a.m. to allow the water to soak into the soil before evaporation can occur!')
 
 
